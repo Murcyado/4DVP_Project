@@ -1,4 +1,4 @@
-name: My Workflow
+name: Lint Workflow
 
 on:
   pull_request:
@@ -6,40 +6,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  static-analysis:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Run semgrep static analysis
-        run: semgrep .
 
-  dockerfile-analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run hadolint Dockerfile analysis
-        run: hadolint Dockerfile
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
 
-  supercalculator:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run SuperCalculator 3
-        run: supercalculator-3
-
-  super-linter:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run super-linter
-        uses: github/super-linter@v4
+      - name: Run Hadolint
+        uses: hadolint/hadolint@v1.17.5-debian
         with:
-          exclude: |
-            **/*.md
-            **/*.txt
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          files: Dockerfile
+
+      - name: Run Super-Linter
+        uses: github/super-linter@v4.12.0
+        if: github.event_name == 'pull_request'
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
