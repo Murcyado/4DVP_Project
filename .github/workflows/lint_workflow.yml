@@ -1,0 +1,45 @@
+name: My Workflow
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run semgrep static analysis
+        run: semgrep .
+
+  dockerfile-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run hadolint Dockerfile analysis
+        run: hadolint Dockerfile
+
+  supercalculator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run SuperCalculator 3
+        run: supercalculator-3
+
+  super-linter:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run super-linter
+        uses: github/super-linter@v4
+        with:
+          exclude: |
+            **/*.md
+            **/*.txt
+          github_token: ${{ secrets.GITHUB_TOKEN }}
