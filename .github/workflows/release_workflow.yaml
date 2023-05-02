@@ -6,8 +6,8 @@ on:
       - "*"
 
 env:
-  DOCKER_USERNAME: ${{ secrets.murcyado }}
-  DOCKER_TOKEN: ${{ secrets.dckr_pat_4Sp-JjjwF_Z_hIe9_21P2pjS8Yg }}
+  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
+  DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }} #dckr_pat_Nvlq0B6p2J3fNNIctPAKeEwGgzo
 
 jobs:
   build:
@@ -32,7 +32,7 @@ jobs:
 
       - name: Build and release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #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
         run: |
           goreleaser release --rm-dist
 
@@ -41,8 +41,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.murcyado }}/${{ env.4dvp-docker-test }}:${{ github.ref }}
+          tags: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPOSITORY }}:${{ github.ref }} #murcyado , 4dvp-docker
         env:
-          DOCKER_USERNAME: ${{ secrets.murcyado }}
-          DOCKER_PASSWORD: ${{ secrets.dckr_pat_4Sp-JjjwF_Z_hIe9_21P2pjS8Yg }}
-          DOCKER_REPOSITORY: YourRepository
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }} #dckr_pat_Nvlq0B6p2J3fNNIctPAKeEwGgzo
+          DOCKER_REPOSITORY: 4dvp-docker
