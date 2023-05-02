@@ -19,7 +19,7 @@ jobs:
           sudo mv goreleaser /usr/local/bin/
       - name: Run goreleaser
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #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
+          GITHUB_TOKEN: ${{ secrets.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 }} #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
         run: |
           goreleaser release --rm-dist
       - name: Build Docker image
@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ github.ref }} #4dvp-docker
+          tags: ${{ secrets.murcyado }}/${{ secrets.4dvp-docker}}:${{ github.ref }} #4dvp-docker
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }} #dckr_pat_gSsC_iBaOL9MbZJRqBIY2iJesqc
+          DOCKER_USERNAME: ${{ secrets.murcyado }} #murcyado
+          DOCKER_PASSWORD: ${{ secrets.dckr_pat_gSsC_iBaOL9MbZJRqBIY2iJesqc }} #dckr_pat_gSsC_iBaOL9MbZJRqBIY2iJesqc
