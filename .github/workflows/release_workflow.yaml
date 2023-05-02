@@ -1,33 +1,48 @@
 name: Release
+
 on:
   push:
     tags:
-      - '*'
+      - "*"
+
+env:
+  DOCKER_USERNAME: ${{ secrets.murcyado }}
+  DOCKER_TOKEN: ${{ secrets.dckr_pat_4Sp-JjjwF_Z_hIe9_21P2pjS8Yg }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up Go
+
+      - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.19'
+          go-version: 1.19
+
+      - name: Cache Go dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
       - name: Install goreleaser
-        run: |
-          curl -sL https://github.com/goreleaser/goreleaser/releases/latest/download/goreleaser_Linux_x86_64.tar.gz | tar xz
-          sudo mv goreleaser /usr/local/bin/
-      - name: Run goreleaser
+        run: curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
+
+      - name: Build and release
         env:
-          GITHUB_TOKEN: ${{ secrets.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 }} #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
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           goreleaser release --rm-dist
-      - name: Build Docker image
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ secrets.murcyado }}/${{ secrets.4dvp-docker}}:${{ github.ref }} #4dvp-docker
+          tags: ${{ env.murcyado }}/${{ env.4dvp-docker-test }}:${{ github.ref }}
         env:
-          DOCKER_USERNAME: ${{ secrets.murcyado }} #murcyado
-          DOCKER_PASSWORD: ${{ secrets.dckr_pat_gSsC_iBaOL9MbZJRqBIY2iJesqc }} #dckr_pat_gSsC_iBaOL9MbZJRqBIY2iJesqc
+          DOCKER_USERNAME: ${{ secrets.murcyado }}
+          DOCKER_PASSWORD: ${{ secrets.dckr_pat_4Sp-JjjwF_Z_hIe9_21P2pjS8Yg }}
+          DOCKER_REPOSITORY: YourRepository
