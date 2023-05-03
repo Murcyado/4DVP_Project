@@ -1,4 +1,4 @@
-name: Lint Workflow
+name: Lint
 
 on:
   pull_request:
@@ -6,24 +6,53 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
+  semgrep:
+    name: Semgrep
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - name: Setup Semgrep
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: "p/supermath"
+    - name: Run Semgrep
+      run: semgrep -o report.json .
+    - name: Upload Semgrep Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: semgrep-report
+        path: report.json
 
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
+  hadolint:
+    name: Hadolint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Hadolint
+      run: docker pull hadolint/hadolint
+    - name: Run Hadolint
+      run: |
+        docker run --rm -i hadolint/hadolint < Dockerfile
+    - name: Upload Hadolint Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: hadolint-report
+        path: hadolint.txt
 
-      - name: Run Hadolint
-        uses: hadolint/hadolint@v1.17.5-debian
-        with:
-          files: Dockerfile
-
-      - name: Run Super-Linter
-        uses: github/super-linter@v4.12.0
-        if: github.event_name == 'pull_request'
-        env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} #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
+  super-linter:
+    name: Super Linter
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Super-Linter
+      uses: github/super-linter@v5.1.0
+      with:
+        github_token: ${{ secrets.GIT_TOKEN }}
+    - name: Run Super-Linter
+      run: ./super-linter.sh --pr --json-output-file super-linter-report.json
+    - name: Upload Super-Linter Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: super-linter-report
+        path: super-linter-report.json
