@@ -32,7 +32,7 @@ jobs:
 
       - name: Build and release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #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
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} #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
         run: |
           goreleaser release --rm-dist
 
