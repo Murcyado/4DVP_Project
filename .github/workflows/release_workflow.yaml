@@ -8,6 +8,7 @@ on:
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
   DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }} #dckr_pat_Nvlq0B6p2J3fNNIctPAKeEwGgzo
+  DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
 
 jobs:
   build:
@@ -36,6 +37,12 @@ jobs:
         run: |
           goreleaser release --rm-dist
 
+      - name: Login on DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
@@ -44,5 +51,6 @@ jobs:
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPOSITORY }}:${{ github.ref }} #murcyado , 4dvp-docker
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }} #dckr_pat_Nvlq0B6p2J3fNNIctPAKeEwGgzo
+          DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }} 
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
           DOCKER_REPOSITORY: 4dvp-docker
