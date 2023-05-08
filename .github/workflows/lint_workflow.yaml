@@ -1,4 +1,4 @@
-name: Lint
+name: Lint Workflow
 
 on:
   pull_request:
@@ -6,53 +6,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  semgrep:
-    name: Semgrep
+  static-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup Semgrep
-      uses: returntocorp/semgrep-action@v1
-      with:
-        config: "p/supermath"
-    - name: Run Semgrep
-      run: semgrep -o report.json .
-    - name: Upload Semgrep Report
-      uses: actions/upload-artifact@v2
-      with:
-        name: semgrep-report
-        path: report.json
+      - uses: actions/checkout@v2
+      - name: Run semgrep
+        uses: returntocorp/semgrep-action@v1
 
-  hadolint:
-    name: Hadolint
+  dockerfile-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup Hadolint
-      run: docker pull hadolint/hadolint
-    - name: Run Hadolint
-      run: |
-        docker run --rm -i hadolint/hadolint < Dockerfile
-    - name: Upload Hadolint Report
-      uses: actions/upload-artifact@v2
-      with:
-        name: hadolint-report
-        path: hadolint.txt
+      - uses: actions/checkout@v2
+      - name: Run hadolint
+        run: docker run --rm -i hadolint/hadolint < Dockerfile
 
   super-linter:
-    name: Super Linter
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup Super-Linter
-      uses: github/super-linter@v5.1.0
-      with:
-        github_token: ${{ secrets.GIT_TOKEN }}
-    - name: Run Super-Linter
-      run: ./super-linter.sh --pr --json-output-file super-linter-report.json
-    - name: Upload Super-Linter Report
-      uses: actions/upload-artifact@v2
-      with:
-        name: super-linter-report
-        path: super-linter-report.json
+      - uses: actions/checkout@v2
+      - name: Run Super-Linter
+        uses: github/super-linter@v4
