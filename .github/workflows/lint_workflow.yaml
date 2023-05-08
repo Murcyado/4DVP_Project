@@ -9,9 +9,9 @@ jobs:
   static-analysis:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v2
-        - name: Run semgrep
-          uses: returntocorp/semgrep-action@v1
+      - uses: actions/checkout@v2
+      - name: Run semgrep
+        uses: returntocorp/semgrep-action@v1
 
   dockerfile-analysis:
     runs-on: ubuntu-latest
