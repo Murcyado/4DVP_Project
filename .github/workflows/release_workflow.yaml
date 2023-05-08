@@ -3,15 +3,11 @@ name: Release
 on:
   push:
     tags:
-      - "*.*.*"
-
-env:
-  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
-  DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }} #dckr_pat_Nvlq0B6p2J3fNNIctPAKeEwGgzo
-  DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - '*'
 
 jobs:
-  build:
+  release:
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,37 +16,26 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19
+          go-version: 1.17
 
-      - name: Cache Go dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      - name: Install Goreleaser
+        run: |
+          curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b $(go env GOPATH)/bin latest
 
-      - name: Install goreleaser
-        run: curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
-
-      - name: Build and release
+      - name: Create Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} #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
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           goreleaser release --rm-dist
-
-      - name: Login on DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPOSITORY }}:${{ github.ref }} #murcyado , 4dvp-docker
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
-          DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }} 
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-          DOCKER_REPOSITORY: 4dvp-docker
+          tags: ${{ secrets.DOCKER_USERNAME }}/YourRepository:${{ github.ref }}
+        secrets:
+          DOCKER_USERNAME:
+            value: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD:
+            value: ${{ secrets.DOCKER_PASSWORD }}
