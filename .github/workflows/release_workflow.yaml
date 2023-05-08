@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "*"
+      - "*.*.*"
 
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }} #murcyado
