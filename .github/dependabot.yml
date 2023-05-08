@@ -6,7 +6,7 @@ updates:
       interval: "daily"
     labels:
       - "dependencies" 
-  - package-ecosystem: "go" #peut etre gomod
+  - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
