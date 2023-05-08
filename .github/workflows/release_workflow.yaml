@@ -35,7 +35,5 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/4dvp-docker:${{ github.ref }}
         secrets:
-          DOCKER_USERNAME:
-            value: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD:
-            value: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
