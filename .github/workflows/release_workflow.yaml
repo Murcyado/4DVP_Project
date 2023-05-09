@@ -1,39 +1,34 @@
-name: Release
-
+name: Release Workflow
 on:
-  push:
-    tags:
-      - '*'
+  release:
+    types: [created]
 
 jobs:
   release:
-    name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v2
 
-      - name: Setup Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.17
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.19
 
-      - name: Install Goreleaser
-        run: |
-          curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b $(go env GOPATH)/bin latest
+    - name: Install Goreleaser
+      run: curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b $(go env GOPATH)/bin
 
-      - name: Create Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-        run: |
-          goreleaser release --rm-dist
+    - name: Build and Release
+      run: goreleaser release --rm-dist
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/4dvp-docker:${{ github.ref }}
-        secrets:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/SuperCalculator:1.1.1 
+
+    - name: Push Docker Image
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/SuperCalculator:1.1.1
