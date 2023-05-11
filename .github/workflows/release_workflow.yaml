@@ -1,34 +1,57 @@
 name: Release Workflow
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - '*'
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      checks: write
+      contents: write
+      deployments: write
+      id-token: write
+      issues: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
-        go-version: 1.19
-
-    - name: Install Goreleaser
-      run: curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b $(go env GOPATH)/bin
+        go-version: stable
 
     - name: Build and Release
-      run: goreleaser release --rm-dist
+      uses: goreleaser/goreleaser-action@v4
+      if: success() && startsWith(github.ref, 'refs/tags/')
+      with: 
+        version: latest 
+        args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx 
+      uses: docker/setup-buildx-action@v2  
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build Docker Image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/SuperCalculator:1.1.1 
-
-    - name: Push Docker Image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/SuperCalculator:1.1.1
+    - name: Build And Publish Image 
+      uses: docker/build-push-action@v4
+      with: 
+        context: . 
+        file: Dockerfile 
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/4dvp_docker:${{ github.ref_name }}
