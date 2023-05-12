@@ -22,6 +22,7 @@ jobs:
       if: success()
       with: 
         version: latest 
+        args: release --clean
       env:
         GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
