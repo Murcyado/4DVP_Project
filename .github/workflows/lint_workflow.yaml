@@ -17,7 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run hadolint
+      - name: Download Hadolint Docker image
+        run: docker pull hadolint/hadolint
+      - name: Run Hadolint
         run: docker run --rm -i hadolint/hadolint < Dockerfile
 
   super-linter:
