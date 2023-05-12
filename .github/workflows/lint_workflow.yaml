@@ -13,11 +13,17 @@ jobs:
       - name: Run semgrep
         uses: returntocorp/semgrep-action@v1
 
-  docker_analysis:
+  dockerfile-analysis:
     runs-on: ubuntu-latest
     steps:
-      - name: launching of hadolint
-        uses: hadolint/hadolint@v4
+      - uses: actions/checkout@v2
+      - name: Download Hadolint Docker image
+        run: docker pull hadolint/hadolint
+      - name: Run Hadolint
+        run: |
+            docker run --rm -i hadolint/hadolint < Dockerfile
+            sed -i 's/ADD /COPY /g' Dockerfile
+            sed -i 's/FROM /FROM ubuntu:20.04 /' Dockerfile
 
   super-linter:
     if: github.event_name == 'pull_request'
