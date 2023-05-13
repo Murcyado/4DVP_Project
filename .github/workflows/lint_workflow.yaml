@@ -20,10 +20,7 @@ jobs:
       - name: Download Hadolint Docker image
         run: docker pull hadolint/hadolint
       - name: Run Hadolint
-        run: |
-            docker run --rm -i hadolint/hadolint < Dockerfile
-            sed -i 's/ADD /COPY /g' Dockerfile
-            sed -i 's/FROM /FROM ubuntu:20.04 /' Dockerfile
+        run: docker run --rm -i hadolint/hadolint < Dockerfile
 
   super-linter:
     if: github.event_name == 'pull_request'
