@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run semgrep
+      - name: Run semgrep for Static analysis
         uses: returntocorp/semgrep-action@v1
 
   dockerfile-analysis:
@@ -20,7 +20,7 @@ jobs:
       - uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
-      - name: Run Hadolint
+      - name: Run Hadolint for DockerFile
         run: docker run --rm -i hadolint/hadolint < Dockerfile
 
   super-linter:
